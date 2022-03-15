@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -6,6 +8,9 @@ from users.serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import OTPRequest,User,Profile
+
+
+
 
 class OTPView(APIView):
     def get(self, request):
@@ -28,7 +33,7 @@ class OTPView(APIView):
             print(data['password'])
             if OTPRequest.objects.is_valid(data['receiver'], data['request_id'], data['password']):
                 print('accepted and we are passed')
-                return Response(self._handle_login(data))
+                return HttpResponseRedirect(self._handle_login(data))
             else:
                 print('401 error')
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -42,12 +47,22 @@ class OTPView(APIView):
         query= User.objects.filter(username=otp['receiver'])
         if query.exists():
             created= False
-            user= query.first()
+            user = query.first()
         else:
             user= User.objects.create(username=otp['receiver'])
             created= True
-        refresh =RefreshToken.for_user(user)
 
+        if user.is_staff == True:
+            # redirect admin to admin panel
+            print('you are in google')
+            redirect('/course/show_course_category/')
+
+        else:
+            # redirect user to user_profile or main page silly!...
+            print('you are in google2')
+            HttpResponseRedirect(redirect_to='https://google.com')
+
+        refresh =RefreshToken.for_user(user)
         return ObtainTokenSerializer({
             'refresh': str(refresh),
             'token': str(refresh.access_token),

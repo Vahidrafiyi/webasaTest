@@ -1,5 +1,7 @@
 from django.db import models
 import datetime
+
+from django.db.models import Sum
 from django_jalali.db import models as jmodels
 
 from django.dispatch import receiver

@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+
 from .serializers import *
 from .models import *
 
@@ -7,7 +9,15 @@ from rest_framework.response import Response
 from rest_framework import generics, permissions, mixins
 from rest_framework.exceptions import ValidationError
 
-from django.db.models import Sum
+from django.db.models import Sum, Q
+
+
+def show_course(request, course_name=None, year=None, slug=None):
+    if year is not None:
+        if slug is not None:
+            return HttpResponse(f'all course from {year} and with {slug} subject')
+        return HttpResponse(f"all courses from {year}")
+    return HttpResponse(f'all courses {course_name}')
 
 
 class ShowCourse(APIView):
@@ -82,6 +92,14 @@ class VoteCreate(generics.CreateAPIView, mixins.DestroyModelMixin):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise ValidationError('you never voted for this post...silly!')
+
+def course_list(request, pk):
+    query = Course.objects.filter(Q(pk=pk) | Q(course_discounted_price=pk))
+    if query.exists():
+        courses = query.all()
+        context = "\n".join(f'title: {course.course_title}' for course in courses)
+        return HttpResponse(context)
+    return HttpResponse('course does not exits!!')
 
 
 
