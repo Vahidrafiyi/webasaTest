@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import redirect
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -13,6 +14,7 @@ from users.models import OTPRequest,User,Profile
 
 
 class OTPView(APIView):
+    permission_classes = (AllowAny,)
     def get(self, request):
         serializer = RequestOTPSerializer(data=request.query_params)
         if serializer.is_valid():
@@ -33,7 +35,7 @@ class OTPView(APIView):
             print(data['password'])
             if OTPRequest.objects.is_valid(data['receiver'], data['request_id'], data['password']):
                 print('accepted and we are passed')
-                return HttpResponseRedirect(self._handle_login(data))
+                return Response(self._handle_login(data))
             else:
                 print('401 error')
                 return Response(status=status.HTTP_401_UNAUTHORIZED)

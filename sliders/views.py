@@ -19,8 +19,6 @@ class ShowSlider(APIView):
         #print(serializers.data)
         return Response(serializers.data,status=status.HTTP_200_OK)
 
-
-class AddSlider(APIView):
     def post(self,request):
         serializers=SliderSerializer(data=request.data)
         print(request.data)
@@ -28,4 +26,14 @@ class AddSlider(APIView):
             serializers.save()
             return Response(serializers.data,status=status.HTTP_201_CREATED)
         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+
+#
+# class AddSlider(APIView):
+#     def post(self,request):
+#         serializers=SliderSerializer(data=request.data)
+#         print(request.data)
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data,status=status.HTTP_201_CREATED)
+#         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
