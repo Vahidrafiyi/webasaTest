@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 
+from blog.permissions import IsAdminUserOrReadOnly
 from .serializers import *
 from .models import *
 
@@ -28,6 +29,7 @@ class ShowCourse(APIView):
 
 
 class AddCourse(APIView):
+    permission_classes = (IsAdminUserOrReadOnly,)
     def post(self,request):
         serializers=CourseSerializer(data=request.data)
         if serializers.is_valid():

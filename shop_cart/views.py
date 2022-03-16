@@ -1,4 +1,6 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated
+
 from shop_cart.models import Cart
 from shop_cart.serializers import CartSerializer
 

@@ -2,13 +2,16 @@ from rest_framework import viewsets
 
 from .serializers import *
 from .models import *
+from blog.permissions import IsAdminUserOrReadOnly
 
 
 class MenuViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUserOrReadOnly,)
     queryset = Menu.objects.filter(parent__isnull=True)
     serializer_class = MenuSerializer
 
 class LogoViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUserOrReadOnly,)
     queryset = Logo.objects.all()
     serializer_class = LogoSerializer
 
