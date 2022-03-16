@@ -6,25 +6,42 @@ from rest_framework.exceptions import ValidationError
 
 from blog.serializers import ArticleSerializer, CommentSerializer, VoteSerializer
 from blog.models import Article, Comment, Vote
-
+from blog.permissions import IsAdminUserOrReadOnly
 
 
 class ShowArticle(APIView):
-    permission_classes=[permissions.AllowAny]
-    def get(self,request):
-        query=Article.objects.all().order_by('created')
-        serializers=ArticleSerializer(query,many=True,context={ 'request' : request})
-        return Response(serializers.data,status=status.HTTP_200_OK)
+    permission_classes=[IsAdminUserOrReadOnly]
+    def get(self,request, pk):
+        if len(pk) == 0:
+            query=Article.objects.all().order_by('created')
+            serializers=ArticleSerializer(query,many=True,context={ 'request' : request})
+            return Response(serializers.data,status=status.HTTP_200_OK)
+
+    def post(self,request, pk):
+        if len(pk) == 0:
+            serializers=ArticleSerializer(data=request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data,status=status.HTTP_201_CREATED)
+            return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        query = Article.objects.get(pk=pk)
+        serializer = ArticleSerializer(query, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddArticle(APIView):
-    permission_classes = [permissions.IsAdminUser]
-    def post(self,request):
-        serializers=ArticleSerializer(data=request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data,status=status.HTTP_201_CREATED)
-        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+# class AddArticle(APIView):
+#     permission_classes = [permissions.IsAdminUser]
+#     def post(self,request):
+#         serializers=ArticleSerializer(data=request.data)
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data,status=status.HTTP_201_CREATED)
+#         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentRelatedToArticle(APIView):
