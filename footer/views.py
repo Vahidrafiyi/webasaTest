@@ -20,8 +20,13 @@ class ShowFooter(APIView):
         return Response(serializers.data,status=status.HTTP_200_OK)
 
     def post(self,request):
+        footer_count = Footer.objects.all().count()
         serializers=FooterSerializer(data=request.data)
         if serializers.is_valid():
+            if footer_count >= 1:
+                data={}
+                data['message'] = 'you have an object of footer and can not add another footer, just can edit it.'
+                return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
             serializers.save()
             return Response(serializers.data,status=status.HTTP_201_CREATED)
         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
