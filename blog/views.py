@@ -26,6 +26,19 @@ class ShowArticle(APIView):
             return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
+        data = {}
+        if len(pk) == 0:
+            data['message'] = 'you have to set a number as pk'
+            return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
+        query_set = Article.objects.all()
+        ids = []
+        for object in query_set:
+            ids.append(object.id)
+        if int(pk) not in ids:
+            data = {
+                'message': 'query match does not exists!'
+            }
+            return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
         query = Article.objects.get(pk=pk)
         serializer = ArticleSerializer(query, data=request.data, partial=True)
         if serializer.is_valid():
